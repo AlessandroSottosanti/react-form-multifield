@@ -11,7 +11,7 @@ function App() {
     authorPost: "",
     titlePost: "",
     contentPost: "",
-    statePost: "",
+    statePost: false,
     imagePost: "",
     categoryPost: "",
     tagsPost: [],
@@ -20,44 +20,46 @@ function App() {
   const [posts, setPosts] = useState([]);
   const [formData, setFormData] = useState(initialPost); // object
 
-  // const [filteredPosts, setFilteredPosts] = useState(posts);
+  const [filteredPosts, setFilteredPosts] = useState(posts);
 
   const [search, setSearch] = useState("");
 
-  // useEffect(() => {
-  //   const newFilteredPosts = posts.filter((post) => post.title.includes(search));
-  //   setFilteredPosts(newFilteredPosts);
-  // }, [search, posts]);
+  const [state, setState] = useState(false);
 
+   useEffect(() => {
+      const newFilteredPosts = posts.filter((post) => post.titlePost.includes(search));
+      setFilteredPosts(newFilteredPosts);
+   }, [search, posts]);
 
+   useEffect(() => {
+    state ? 
+      alert("Il post è pubblicato")
+      :
+      alert("Il post è una bozza")
+   }, [state, posts]);
 
   // Salva post
   const handleNewPostSubmit = (event) => {
     event.preventDefault();
 
-    // 1 creo l'oggetto della nuov post
     const newPost = {
       ...formData,
       id: Date.now(),
     };
 
-    // 2 creo la copia dell'array menu precedente, aggiungendo la nuova pizza
     const newArray = [...posts, newPost];
 
-    // 3. aggiorno lo stato del menu
     setPosts(newArray);
 
-    // 4. Ripulisco i campi del form
     setFormData(initialPost);
 
   };
 
   const handleInputChange = (event) => {
     const keyToChange = event.target.name;
-    // Se l'input è checkbox,
-    //    allora il value da inserire sarà true o false, preso da target.checked
-    let newValue;
 
+    let newValue;
+    console.log(`tipo di input:  ${event.target.type} ${event.target.checked}`)
     if (event.target.type === "checkbox") {
       newValue = event.target.checked;
     } else {
@@ -85,10 +87,10 @@ function App() {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   }
-  
 
-console.log("post:", posts);
 
+  console.log("post:", posts);
+ console.log(`filteredPosts ${filteredPosts}`);
 
   return (
     <>
@@ -105,11 +107,12 @@ console.log("post:", posts);
           <label htmlFor='contentPost'>Contenuto post</label>
           <textarea className='form-control' name='contentPost' type="text-area" id='contentPost' value={formData.contentPost} onChange={handleInputChange} />
 
-          <select className="form-select" name='statePost' aria-label="Default select example" value={formData.statePost} onChange={handleInputChange}>
-            <option value="" disabled >Stato del post</option>
-            <option value="published">Pubblicato</option>
-            <option value="draft">Bozza</option>
-          </select>
+          <div className="form-check">
+            <input className="form-check-input" type="checkbox"  checked={formData.statePost} name='statePost' id="statePost" onChange={handleInputChange} />
+              <label className="form-check-label" for="statePost">
+                Post Pubblico
+              </label>
+          </div>
 
           <select className="form-select" name='categoryPost' aria-label="Default select example" value={formData.categoryPost} onChange={handleInputChange}>
             <option value="" disabled >Categoria del post</option>
@@ -119,10 +122,10 @@ console.log("post:", posts);
           </select>
 
           <label htmlFor='contentPost'>Url immagine del post</label>
-          <input className='form-control' type="url" id='imagePost' name='imagePost' value={formData.imagePost} onChange={handleInputChange}/>
+          <input className='form-control' type="url" id='imagePost' name='imagePost' value={formData.imagePost} onChange={handleInputChange} />
 
           <div className="d-flex gap-3">
-            <button type='submit' className={`btn btn-success ${(!formData.authorPost || !formData.titlePost || !formData.contentPost || !formData.statePost || !formData.categoryPost || !formData.imagePost) && 'disabled' }`}>Salva</button>
+            <button type='submit' className={`btn btn-success ${(!formData.authorPost || !formData.titlePost || !formData.contentPost || !formData.categoryPost || !formData.imagePost) && 'disabled'}`}>Salva</button>
             <button type='clear' className='btn btn-danger'>Cancella</button>
           </div>
 
@@ -132,7 +135,7 @@ console.log("post:", posts);
 
       {/* Lista posts */}
       <div className="container m-5 d-flex flex-column gap-3">
-{/* 
+        
         <div className="my-4">
           <h2>Filtra i task</h2>
           <input
@@ -141,13 +144,13 @@ console.log("post:", posts);
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
-        </div> */}
+        </div> 
 
         <h2>Elenco post</h2>
-        {posts.length > 0 ?
+        {filteredPosts.length > 0 ?
 
-          (posts.map((curPost) => (
-            curPost.statePost === "published" &&
+          (filteredPosts.map((curPost) => (
+            curPost.statePost &&
             <div className="card" key={curPost.id}>
               <div className="card-header d-flex justify-content-between align-items-center">
                 <h2>{curPost.titlePost}</h2>
